@@ -145,21 +145,37 @@ export default function EveryIP() {
     <div className="h-screen flex flex-col bg-gray-50">
       <main className="flex flex-1 overflow-hidden">
         <div className="flex-1 p-6 flex flex-col">
-          <h1 className="text-3xl font-bold mb-6 text-gray-800">
-            Every IPv6 Address
-            <FavoritesButton
-              isShowingFavorites={isShowingFavorites}
-              onToggle={() => setIsShowingFavorites(!isShowingFavorites)}
-            />
-          </h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Every IPv6 Address
+              <h3 className="text-sm font-light text-gray-500">
+                Inspired by{" "}
+                <a
+                  href="https://everyuuid.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-600 underline"
+                >
+                  eieio&apos;s every UUID website
+                </a>
+                .
+              </h3>
+            </h1>
+            <div className="flex items-center gap-2">
+              <SearchBar
+                onSearch={setVirtualPosition}
+                onQueryChange={setSearchQuery}
+              />
+              <FavoritesButton
+                isShowingFavorites={isShowingFavorites}
+                onToggle={() => setIsShowingFavorites(!isShowingFavorites)}
+              />
+            </div>
+          </div>
           <AnimatedStatsPanel
             virtualPosition={virtualPosition}
             onJump={setVirtualPosition}
             isVisible={!isShowingFavorites}
-          />
-          <SearchBar
-            onSearch={setVirtualPosition}
-            onQueryChange={setSearchQuery}
           />
           <div className="table-container flex-1 bg-white rounded-lg shadow overflow-hidden">
             <table className="w-full table-fixed">

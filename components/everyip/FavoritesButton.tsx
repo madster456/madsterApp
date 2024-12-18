@@ -12,7 +12,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({
   return (
     <button
       onClick={onToggle}
-      className={`absolute right-16 top-4 p-2 rounded-lg transition-colors
+      className={`p-2 rounded-lg transition-colors
         ${
           isShowingFavorites
             ? "bg-yellow-100 hover:bg-yellow-200"

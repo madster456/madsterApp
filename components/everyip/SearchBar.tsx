@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import BigNumber from "bignumber.js";
-import { ipv6ToNumber, MAX_IPv6, normalizeIPv6 } from "@/lib/everyip/ip-utils";
-import { AddressService } from "@/lib/everyip/address-service";
 
 interface SearchBarProps {
   onSearch: (position: BigNumber) => void;
@@ -10,43 +8,86 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onQueryChange }) => {
-  const [error, setError] = useState<string>("");
   const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleSearch = (query: string) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
     setValue(query);
-    const trimmedQuery = query.trim();
-    setError("");
-    onQueryChange(trimmedQuery);
+    onQueryChange(query);
+  };
 
-    if (!trimmedQuery) return;
+  const handleFocus = () => {
+    setIsOpen(true);
+  };
 
-    try {
-      const position = AddressService.searchAddress(trimmedQuery);
-      if (position.isGreaterThan(MAX_IPv6) || position.isLessThan(0)) {
-        setError("Address out of range");
-        return;
-      }
-      onSearch(position);
-    } catch {
-      if (!trimmedQuery.match(/^[0-9a-fA-F:]+$/)) {
-        setError("Invalid IPv6 address");
-      }
-    }
+  const handleBlur = () => {
+    // Small delay to allow clicking suggestions
+    setTimeout(() => setIsOpen(false), 200);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setValue(suggestion);
+    onQueryChange(suggestion);
   };
 
   return (
-    <div className="mb-4">
+    <div className="relative w-96">
       <input
         type="text"
         value={value}
-        placeholder="Enter IPv6 address (e.g., ::1)"
-        onChange={(e) => handleSearch(e.target.value)}
-        className={`w-full px-4 py-2 rounded-lg border ${
-          error ? "border-red-300" : "border-gray-300"
-        } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono`}
+        onChange={handleInputChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder="Search IPv6 address..."
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+
+      {isOpen && (
+        <div className="absolute w-full mt-1 bg-white border rounded-lg shadow-lg z-10 p-2">
+          <div className="text-sm text-gray-500 mb-2">Try these addresses:</div>
+          <div className="space-y-2">
+            <div
+              className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+              onClick={() => handleSuggestionClick("fe80:")}
+            >
+              <div className="font-mono">fe80:</div>
+              <div className="text-xs text-gray-600">
+                Link-local addresses for local network communication
+              </div>
+            </div>
+            <div
+              className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+              onClick={() => handleSuggestionClick("2001:db8:")}
+            >
+              <div className="font-mono">2001:db8:</div>
+              <div className="text-xs text-gray-600">
+                Documentation range for examples
+              </div>
+            </div>
+            <div
+              className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+              onClick={() => handleSuggestionClick("2606:4700:4700::1111")}
+            >
+              <div className="font-mono">2606:4700:4700::1111</div>
+              <div className="text-xs text-gray-600">
+                Cloudflare DNS (1.1.1.1)
+              </div>
+            </div>
+            <div
+              className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+              onClick={() => handleSuggestionClick("2620:fe::fe")}
+            >
+              <div className="font-mono">2620:fe::fe</div>
+              <div className="text-xs text-gray-600">
+                Google Public DNS (8.8.8.8)
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
